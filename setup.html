@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Настройка - Aelum BD</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .setup-steps {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            margin: 30px 0;
+        }
+        
+        .step {
+            background: white;
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            border-left: 4px solid #667eea;
+        }
+        
+        .step-number {
+            display: inline-block;
+            background: #667eea;
+            color: white;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 30px;
+            margin-right: 10px;
+        }
+        
+        .step.completed {
+            border-left-color: #4CAF50;
+            opacity: 0.8;
+        }
+        
+        .step.completed .step-number {
+            background: #4CAF50;
+        }
+        
+        .instructions {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+            font-size: 14px;
+        }
+        
+        .setup-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 30px;
+            justify-content: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1><i class="fas fa-cogs"></i> Настройка Aelum BD</h1>
+            <p>Завершите настройку для начала работы</p>
+        </header>
+        
+        <div class="setup-steps">
+            <!-- Шаг 1: GitHub OAuth App -->
+            <div class="step" id="step1">
+                <h3><span class="step-number">1</span> Создание GitHub OAuth App</h3>
+                <p>Создайте приложение на GitHub для авторизации</p>
+                
+                <div class="instructions">
+                    <ol>
+                        <li>Перейдите в <a href="https://github.com/settings/developers" target="_blank">GitHub Developer Settings</a></li>
+                        <li>Нажмите "New OAuth App"</li>
+                        <li>Заполните поля:
+                            <ul>
+                                <li><strong>Application name:</strong> Aelum BD</li>
+                                <li><strong>Homepage URL:</strong> <span id="homepageUrl"></span></li>
+                                <li><strong>Authorization callback URL:</strong> <span id="callbackUrl"></span></li>
+                            </ul>
+                        </li>
+                        <li>Скопируйте <strong>Client ID</strong></li>
+                    </ol>
+                </div>
+                
+                <div style="margin-top: 20px;">
+                    <label>GitHub Client ID:</label>
+                    <input type="text" id="githubClientId" class="form-input" 
+                           placeholder="Введите Client ID">
+                    <button onclick="saveClientId()" class="btn-primary" style="margin-top: 10px;">
+                        <i class="fas fa-save"></i> Сохранить
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Шаг 2: Proxy Server -->
+            <div class="step" id="step2">
+                <h3><span class="step-number">2</span> Настройка Proxy Server</h3>
+                <p>Укажите URL вашего прокси сервера для обхода CORS</p>
+                
+                <div class="instructions">
+                    <p><strong>Варианты:</strong></p>
+                    <ul>
+                        <li>Используйте наш публичный прокси: <code>https://aelum-bd-proxy.herokuapp.com</code></li>
+                        <li>Или разверните свой (рекомендуется)</li>
+                    </ul>
+                </div>
+                
+                <div style="margin-top: 20px;">
+                    <label>URL Proxy сервера:</label>
+                    <input type="text" id="proxyServerUrl" class="form-input" 
+                           value="https://aelum-bd-proxy.herokuapp.com"
+                           placeholder="https://ваш-прокси.сервер">
+                    <button onclick="saveProxyUrl()" class="btn-primary" style="margin-top: 10px;">
+                        <i class="fas fa-save"></i> Сохранить
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Шаг 3: GitHub репозиторий -->
+            <div class="step" id="step3">
+                <h3><span class="step-number">3</span> Настройка репозитория</h3>
+                <p>Укажите репозиторий для хранения файлов</p>
+                
+                <div class="instructions">
+                    <p>Создайте публичный репозиторий на GitHub или используйте существующий.</p>
+                </div>
+                
+                <div style="margin-top: 20px;">
+                    <label>GitHub репозиторий (username/repo):</label>
+                    <input type="text" id="githubRepo" class="form-input" 
+                           placeholder="ваш-username/aelum-bd">
+                    <button onclick="saveRepo()" class="btn-primary" style="margin-top: 10px;">
+                        <i class="fas fa-save"></i> Сохранить
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Шаг 4: Авторизация -->
+            <div class="step" id="step4">
+                <h3><span class="step-number">4</span> Авторизация</h3>
+                <p>Авторизуйтесь через GitHub для получения доступа</p>
+                
+                <div style="margin-top: 20px; text-align: center;">
+                    <button onclick="authorizeWithGitHub()" class="btn-primary" style="padding: 15px 30px;">
+                        <i class="fab fa-github"></i> Авторизоваться через GitHub
+                    </button>
+                    <p style="margin-top: 15px; color: #666;">
+                        Или <a href="javascript:void(0)" onclick="skipToDashboard()">пропустить и использовать демо-режим</a>
+                    </p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="setup-actions">
+            <button onclick="testConfiguration()" class="btn-secondary">
+                <i class="fas fa-check"></i> Проверить настройки
+            </button>
+            <button onclick="completeSetup()" class="btn-primary">
+                <i class="fas fa-rocket"></i> Завершить настройку
+            </button>
+        </div>
+        
+        <div id="setupStatus"></div>
+    </div>
+    
+    <script src="auth.js"></script>
+    <script>
+        // Устанавливаем URLs
+        document.getElementById('homepageUrl').textContent = window.location.origin;
+        document.getElementById('callbackUrl').textContent = window.location.origin + '/auth-callback.html';
+        
+        // Проверяем текущий прогресс
+        document.addEventListener('DOMContentLoaded', () => {
+            checkSetupProgress();
+        });
+        
+        function checkSetupProgress() {
+            const clientId = localStorage.getItem('github_client_id');
+            const proxyUrl = localStorage.getItem('proxy_server_url');
+            const repo = localStorage.getItem('github_repo');
+            
+            if (clientId) {
+                document.getElementById('step1').classList.add('completed');
+                document.getElementById('githubClientId').value = clientId;
+            }
+            
+            if (proxyUrl) {
+                document.getElementById('step2').classList.add('completed');
+                document.getElementById('proxyServerUrl').value = proxyUrl;
+            }
+            
+            if (repo) {
+                document.getElementById('step3').classList.add('completed');
+                document.getElementById('githubRepo').value = repo;
+            }
+        }
+        
+        function saveClientId() {
+            const clientId = document.getElementById('githubClientId').value.trim();
+            if (clientId) {
+                auth.setGitHubClientId(clientId);
+                showStatus('Client ID сохранен', 'success');
+                document.getElementById('step1').classList.add('completed');
+            }
+        }
+        
+        function saveProxyUrl() {
+            const proxyUrl = document.getElementById('proxyServerUrl').value.trim();
+            if (proxyUrl) {
+                auth.setProxyServer(proxyUrl);
+                showStatus('Proxy URL сохранен', 'success');
+                document.getElementById('step2').classList.add('completed');
+            }
+        }
+        
+        function saveRepo() {
+            const repo = document.getElementById('githubRepo').value.trim();
+            if (repo && repo.includes('/')) {
+                localStorage.setItem('github_repo', repo);
+                showStatus('Репозиторий сохранен', 'success');
+                document.getElementById('step3').classList.add('completed');
+            }
+        }
+        
+        function authorizeWithGitHub() {
+            auth.loginWithGitHub();
+        }
+        
+        function skipToDashboard() {
+            localStorage.setItem('demo_mode', 'true');
+            window.location.href = 'dashboard.html';
+        }
+        
+        async function testConfiguration() {
+            const configCheck = auth.checkConfig();
+            
+            if (configCheck.valid) {
+                showStatus('✅ Конфигурация в порядке!', 'success');
+            } else {
+                showStatus(`⚠️ ${configCheck.message}`, 'warning');
+            }
+        }
+        
+        function completeSetup() {
+            window.location.href = 'dashboard.html';
+        }
+        
+        function showStatus(message, type) {
+            const statusEl = document.getElementById('setupStatus');
+            statusEl.innerHTML = `
+                <div class="status ${type}">
+                    ${message}
+                </div>
+            `;
+        }
+    </script>
+</body>
+</html>
